@@ -1,0 +1,314 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
+    <title>고교 내신 석차 등급 계산기</title>
+    <meta name="description" content="나의 등수와 전체 인원을 입력하면 내신 등급을 정확하게 계산해줍니다.">
+    
+    <style>
+        /* iOS 스타일 폰트 적용 */
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Apple SD Gothic Neo", "Malgun Gothic", sans-serif;
+            /* 이미지와 유사한 따뜻한 그라데이션 배경 */
+            background: linear-gradient(135deg, #fdfbfb 0%, #ebedee 100%);
+            /* 또는 이미지의 노란빛을 원하시면 아래 주석을 해제하고 위를 주석 처리하세요 */
+            /* background: linear-gradient(to bottom, #fceabb 0%, #f8b500 100%); */
+            margin: 0;
+            padding: 30px 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+            color: #1d1d1f; /* 애플 스타일 진한 회색 폰트 */
+        }
+
+        .main-wrapper {
+            display: flex;
+            gap: 25px;
+            flex-wrap: wrap;
+            justify-content: center;
+            max-width: 960px;
+            width: 100%;
+            margin-bottom: 30px;
+        }
+
+        /* 공통 박스 스타일: 더 둥글고 부드러운 그림자 */
+        .box {
+            background-color: rgba(255, 255, 255, 0.8); /* 약간 투명한 흰색 배경 */
+            backdrop-filter: blur(20px); /* 아이폰 특유의 블러 효과 */
+            padding: 2.5rem;
+            border-radius: 28px; /* 훨씬 더 둥근 모서리 */
+            box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.1); /* 부드럽고 넓은 그림자 */
+            border: 1px solid rgba(255, 255, 255, 0.3); /* 미세한 테두리 */
+        }
+
+        .calculator-section {
+            flex: 1;
+            min-width: 320px;
+            text-align: center;
+        }
+
+        .table-section {
+            flex: 1;
+            min-width: 320px;
+        }
+
+        /* 타이틀 스타일: 크고 두껍게 */
+        h1 {
+            color: #000;
+            margin-bottom: 25px;
+            text-align: center;
+            font-size: 2rem;
+            font-weight: 800;
+            letter-spacing: -0.5px;
+        }
+
+        h3 {
+            color: #000;
+            margin-bottom: 20px;
+            text-align: center;
+            font-weight: 700;
+            font-size: 1.5rem;
+        }
+
+        .input-group {
+            margin-bottom: 20px;
+            text-align: left;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #86868b; /* 애플 스타일 연한 회색 라벨 */
+            font-size: 0.9rem;
+            margin-left: 10px; /* 라벨 살짝 들여쓰기 */
+        }
+
+        /* 입력창 스타일: 테두리 없이 배경색으로 채움, 매우 둥글게 */
+        input {
+            width: 100%;
+            padding: 16px 20px;
+            border: none;
+            background-color: #f2f2f7; /* iOS 기본 입력창 배경색 */
+            border-radius: 16px; /* 둥근 입력창 */
+            box-sizing: border-box;
+            font-size: 17px; /* iOS 기본 폰트 크기 */
+            transition: background-color 0.3s;
+        }
+        input:focus {
+            outline: none;
+            background-color: #e5e5ea; /* 포커스 시 약간 진해짐 */
+        }
+
+        /* 버튼 스타일: 완전한 알약(Pill) 모양 */
+        button {
+            width: 100%;
+            padding: 16px;
+            background-color: #007bff; /* 파란색 유지 (iOS 액센트 컬러와 유사) */
+            color: white;
+            border: none;
+            border-radius: 50px; /* 완전한 알약 모양 */
+            font-size: 18px;
+            font-weight: 700;
+            cursor: pointer;
+            margin-top: 15px;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 12px rgba(0, 123, 255, 0.3);
+        }
+        button:hover {
+            background-color: #006ce6;
+            transform: translateY(-2px); /* 호버 시 살짝 떠오르는 효과 */
+            box-shadow: 0 6px 16px rgba(0, 123, 255, 0.4);
+        }
+
+        /* 결과 창 스타일: 박스 안의 또 다른 부드러운 박스 */
+        #result {
+            margin-top: 25px;
+            padding: 20px;
+            background-color: #f2f2f7;
+            border-radius: 20px;
+            display: none;
+        }
+
+        .grade-result {
+            font-size: 28px;
+            font-weight: 800;
+            color: #007bff;
+            margin: 10px 0 0 0;
+        }
+
+        /* 테이블 스타일: 부드럽게 다듬기 */
+        table {
+            width: 100%;
+            border-collapse: separate; /* 테두리 분리 */
+            border-spacing: 0; /* 간격 없앰 */
+            font-size: 15px;
+            border-radius: 16px; /* 테이블 모서리 둥글게 */
+            overflow: hidden; /* 둥근 모서리 적용을 위해 넘치는 부분 숨김 */
+            border: 1px solid #e5e5ea; /* 전체 테두리 */
+        }
+
+        th, td {
+            padding: 14px;
+            border-bottom: 1px solid #e5e5ea;
+            text-align: center;
+        }
+
+        th {
+            background-color: #f9f9f9;
+            color: #6e6e73;
+            font-weight: 600;
+        }
+        
+        /* 마지막 줄 테두리 제거 */
+        tr:last-child td {
+            border-bottom: none;
+        }
+
+        tr:hover {
+            background-color: #f2f2f7;
+        }
+
+        /* 강조 행 스타일 */
+        .highlight-row {
+            background-color: #e3f0ff !important;
+            font-weight: 700;
+            color: #007bff;
+        }
+
+        /* 광고 영역 스타일: 더 둥글게 */
+        .ad-container {
+            width: 100%;
+            max-width: 728px;
+            height: 90px;
+            background-color: rgba(255,255,255,0.6);
+            backdrop-filter: blur(10px);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: #999;
+            margin-top: 30px;
+            border-radius: 20px; /* 광고 영역도 둥글게 */
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+    </style>
+</head>
+<body>
+
+<div class="main-wrapper">
+    <div class="box calculator-section">
+        <h1>내신 등급 계산기</h1>
+        
+        <div class="input-group">
+            <label for="rank">나의 등수 (등)</label>
+            <input type="number" id="rank" placeholder="예: 92">
+        </div>
+
+        <div class="input-group">
+            <label for="total">전체 인원 (명)</label>
+            <input type="number" id="total" placeholder="예: 153">
+        </div>
+
+        <button onclick="calculateAll()">계산하기</button>
+
+        <div id="result">
+            <p style="color: #6e6e73; margin-bottom: 5px;">단순 백분위: <span id="percent">0</span>%</p>
+            <p class="grade-result"><span id="myGrade">1</span>등급</p>
+        </div>
+    </div>
+
+    <div class="box table-section">
+        <h3>등급별 인원 컷 (반올림)</h3>
+        <table>
+            <thead>
+                <tr>
+                    <th>등급</th>
+                    <th>누적 인원</th>
+                    <th>해당 등수</th>
+                </tr>
+            </thead>
+            <tbody id="gradeTableBody">
+                <tr>
+                    <td colspan="3" style="color: #999; padding: 30px;">전체 인원을 입력하고<br>계산 버튼을 눌러주세요.</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<div class="ad-container">
+    <p>광고 영역</p>
+</div>
+
+<script>
+    // 자바스크립트 로직은 이전과 동일합니다.
+    const GRADE_CUTS = [
+        { grade: 1, percent: 4 },
+        { grade: 2, percent: 11 },
+        { grade: 3, percent: 23 },
+        { grade: 4, percent: 40 },
+        { grade: 5, percent: 60 },
+        { grade: 6, percent: 77 },
+        { grade: 7, percent: 89 },
+        { grade: 8, percent: 96 },
+        { grade: 9, percent: 100 }
+    ];
+
+    function calculateAll() {
+        const rank = parseFloat(document.getElementById('rank').value);
+        const total = parseFloat(document.getElementById('total').value);
+        const resultDiv = document.getElementById('result');
+
+        if (!total || total <= 0) {
+            alert("전체 인원을 올바르게 입력해주세요.");
+            return;
+        }
+
+        let myGrade = 9;
+        let cutoffs = [];
+        GRADE_CUTS.forEach(cut => {
+            const cutoffRank = Math.round(total * (cut.percent / 100));
+            cutoffs.push({ grade: cut.grade, cutoffRank: cutoffRank, percent: cut.percent });
+        });
+
+        if (rank && rank > 0) {
+            if (rank > total) {
+                alert("등수가 전체 인원보다 클 수 없습니다.");
+                return;
+            }
+            for (let i = 0; i < cutoffs.length; i++) {
+                if (rank <= cutoffs[i].cutoffRank) {
+                    myGrade = cutoffs[i].grade;
+                    break;
+                }
+            }
+            const percentage = (rank / total) * 100;
+            document.getElementById('percent').innerText = percentage.toFixed(2);
+            document.getElementById('myGrade').innerText = myGrade;
+            resultDiv.style.display = 'block';
+        }
+        updateGradeTable(total, myGrade, cutoffs);
+    }
+
+    function updateGradeTable(total, myGrade, cutoffs) {
+        const tbody = document.getElementById('gradeTableBody');
+        tbody.innerHTML = "";
+        let prevRank = 0;
+        cutoffs.forEach(cut => {
+            const startRank = prevRank + 1;
+            const endRank = cut.cutoffRank;
+            let rankText = (startRank > endRank) ? "해당 인원 없음" : `${startRank}등 ~ ${endRank}등`;
+            const row = document.createElement('tr');
+            if (myGrade === cut.grade) row.classList.add('highlight-row');
+            row.innerHTML = `<td>${cut.grade}등급</td><td>${endRank}명 (누적)</td><td>${rankText}</td>`;
+            tbody.appendChild(row);
+            prevRank = endRank;
+        });
+    }
+</script>
+
+</body>
+</html>
